@@ -33,7 +33,7 @@ module.exports = {
       i++;
     };
     if (i === result.length){
-      reject(Error("We can't find the module. Make sure you type the module code correctly."))
+      reject(modulecode);
     }
 
   });
@@ -70,24 +70,32 @@ module.exports = {
 
 // find Module in a string
 findModule: function(string){
-  var r = /([a-z]|[A-Z])+([a-z]|[A-Z])+\d+\d+\d+\d/;
+  var s = /([A-Z])+([A-Z])+\d+\d+\d+\d+([A-Z])/;
+  var r = /([A-Z])+([A-Z])+\d+\d+\d+\d/;
+
   var module = string.match(r);
-  if (module == null)
-    return -1;
+  var module2 = string.match(s);
+  if (module2 == null) {
+    if (module == null)
+        return -1;
+    else 
+        return module[0];
+  }
   else
-    return module[0]; 
+    return module2[0]; 
 },
 
 // find keyword in a string
 findKey: function(string){
   var intent;
-  if (string.search("exam") != -1 && string.search("class") != -1)
+  
+  if (string.search("EXAM") != -1 && string.search("CLASS") != -1)
     intent = "unsure";
-  else if (string.search("exam") != -1)
+  else if (string.search("EXAM") != -1)
     intent = "exam";
-  else if (string.search("class") != -1)
+  else if (string.search("CLASS") != -1)
     intent = "class";
-  else if (string.search("exam") == -1 && string.search("class") == -1)
+  else if (string.search("EXAM") == -1 && string.search("CLASS") == -1)
     intent = "no intent"
   return intent;
 },

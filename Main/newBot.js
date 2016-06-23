@@ -98,7 +98,7 @@ app.post('/fb', (req, res) => {
     const sender = messaging.sender.id;
 
     // We retrieve the message content
-    const msg = messaging.message.text;
+    const msg = messaging.message.text.toUpperCase();
     const atts = messaging.message.attachments;
 
     if (atts) {
@@ -125,10 +125,10 @@ app.post('/fb', (req, res) => {
 //function to check text
 
 var execute = (sender, msg) => {
+  console.log(msg);
 	var intent = nusmod.findKey(msg);
-	var module = nusmod.findModule(msg);
-  console.log(module);
-  console.log(intent);
+	// var module = nusmod.findModule(msg);
+  
 	if (intent === "unsure")
 		fbMessage(sender,"We are unclear of your intent");
 	else if (intent === "no intent")
@@ -148,16 +148,22 @@ var execute = (sender, msg) => {
 		var result = {};
 
 		nusmod.getModule("2015-2016",nusmod.findModule(msg)).then(function(res){
-
+        console.log(nusmod.findModule(msg));
 				// console.log(res);
 				result = Object.assign(result,res);
+        // console.log(result);
 				
-				var messageToSend = "The date of examination is " + result.ExamDate + ", it will last for " + result.ExamDuration +
+				var messageToSend = "The date of examination of module " + nusmod.findModule(msg) + " is " + result.ExamDate + ", it will last for " + result.ExamDuration +
 		" and it will be held in " + result.ExamVenue + ".";
 		fbMessage(sender,messageToSend);
+    console.log("Waiting for other messages");
 
 		}).catch(function(err){
-			console.log(err);
+			// console.log(err);
+      var messageToSend = "Sorry we cannot find your module. Is it " + err + "?";
+    fbMessage(sender,messageToSend);
+    console.log("Waiting for other messages");
+
 		});
 
 		// console.log("Mod is " + module);
@@ -168,6 +174,7 @@ var execute = (sender, msg) => {
 		// fbMessage(sender,messageToSend);
 
 	}
+
 
 }
 
