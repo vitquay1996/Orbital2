@@ -114,10 +114,11 @@ findKey: function(string){
   },
 
   convertTime: function(str){
+    console.log(str);
     var date = str.substring(0 , str.indexOf("T"));
-    var time = str.substring(str.indexOf("T") + 1, str.indexOf("T") + 6 );
+    var time = str.substring(str.indexOf("T") + 1 , str.indexOf("T") + 6 );
     return time + ' on ' + date;
-  }
+  },
 
 // findLecture: function(modulecode){
 //   return new Promise( function(response,reject){
