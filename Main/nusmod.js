@@ -105,6 +105,20 @@ findKey: function(string){
 
 // },
 
+  convertPeriod: function(string){
+    if (string.search("M"))
+      return string[string.indexOf("M") - 4 ] + ' hours and ' + string[string.indexOf("M") - 2 ]+ string[string.indexOf("M") - 1 ] + ' minutes';
+    else
+      return string[string.indexOf("H") - 1 ] + ' hours';
+
+  },
+
+  convertTime: function(string){
+    var date = string.substring(0,string.indexOf("T"));
+    var time = string.substring(string.indexOf("T") + 1, string.indexOf("T") + 6 );
+    return time + ' on ' + date;
+  }
+
 // findLecture: function(modulecode){
 //   return new Promise( function(response,reject){
 //       var fs = require("fs");

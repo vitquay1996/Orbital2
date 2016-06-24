@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const request = require('request');
 var path = require('path');
-var nusmod = require( path.resolve( __dirname, "./nusmod.js" ) );
+var nus = require( path.resolve( __dirname, "./nusmod.js" ) );
 
 // Webserver parameter
 const PORT = process.env.PORT || 8445;
@@ -222,8 +222,8 @@ app.post('/fb', (req, res) => {
 
 var execute = (sender, msg ) => {
   
-	var intent = nusmod.findKey(msg);
-	var module = nusmod.findModule(msg);
+	var intent = nus.findKey(msg);
+	var module = nus.findModule(msg);
 	
 	// var module = nusmod.findModule(msg);
   
@@ -242,7 +242,7 @@ var execute = (sender, msg ) => {
 
 		if (module !== -1) {
 		var result = {};
-		nusmod.getModule("2015-2016",module).then(function(res){
+		nus.getModule("2015-2016",module).then(function(res){
 				result = Object.assign(result,res);
 		}).catch(function(err){
 			console.log(err);
@@ -259,14 +259,15 @@ var execute = (sender, msg ) => {
 		if (module !== -1) {
 			var result = {};
 
-			nusmod.getModule(module).then(function(res){
-				console.log(nusmod.findModule(msg));
+			nus.getModule(module).then(function(res){
+				// console.log(nus.findModule(msg));
 				// console.log(res);
 				result = Object.assign(result,res);
         // console.log(result);
 
-        var messageToSend = "The date of examination of module " + nusmod.findModule(msg) + " is " + result.ExamDate + ", it will last for " + result.ExamDuration +
+        var messageToSend = "The time of examination of module " + nus.findModule(msg) + " is at " + nus.convertTime(result.ExamDate) + ", it will last for " + nus.convertPeriod(result.ExamDuration) +
         " and it will be held in " + result.ExamVenue + ".";
+        console.log(nus.convertTime(result.ExamDate));
         fbMessageWithButtons(sender,messageToSend);
 		// delete sessions[sessionId];
 		console.log("Waiting for other messages");
