@@ -226,6 +226,7 @@ var execute = (sender, msg ) => {
 	var module = nus.findModule(msg);
 	
 	// var module = nusmod.findModule(msg);
+  if (nus.findModule(msg) !== -1) {
   
 	switch(intent){
 		case "unsure":
@@ -240,7 +241,7 @@ var execute = (sender, msg ) => {
 
 		case "class":
 
-		if (module !== -1) {
+		
 		var result = {};
 		nus.getModule("2015-2016",module).then(function(res){
 				result = Object.assign(result,res);
@@ -250,13 +251,12 @@ var execute = (sender, msg ) => {
 		// blah blah
 		var messageToSend = "This is the message to send";
 		fbMessage(sender,messageToSend);
-		} else 
-			fbMessage(sender,'There is either no module indicated or we cannot find that module. Please indicate again');
+		
 		break;
 
 		case "exam":
 
-		if (module !== -1) {
+		
 			var result = {};
 
 			nus.getModule(nus.findModule(msg)).then(function(res){
@@ -275,18 +275,17 @@ var execute = (sender, msg ) => {
 		}).catch(function(err){
 			console.log(err);
 
-			var messageToSend = "Sorry we cannot find your module. Is it " + err + "?";
+			var messageToSend = "Sorry we cannot find your module?";
 			fbMessage(sender,messageToSend);
 			console.log("Waiting for other messages");
 
 		});
-		} else 
-			fbMessage(sender,'There is either no module indicated or we cannot find that module. Please indicate again');
-
-
+		
 
 
 	}
+} else
+  fbMessage(sender,'There is either no module indicated or we cannot find your module. Please make sure you type in your module code correctly');
 	// return intent || module;
 
 
