@@ -21,6 +21,25 @@ if (!FB_PAGE_TOKEN) {
 }
 const FB_VERIFY_TOKEN = process.env.FB_VERIFY_TOKEN;
 
+
+const sessions = {};
+const findOrCreateSession = (fbid) => {
+  let sessionId;
+  // Let's see if we already have a session for the user fbid
+  Object.keys(sessions).forEach(k => {
+    if (sessions[k].fbid === fbid) {
+      // Yep, got it!
+      sessionId = k;
+    }
+  });
+  if (!sessionId) {
+    // No session found for user fbid, let's create a new one
+    sessionId = new Date().toISOString();
+    sessions[sessionId] = {fbid: fbid, context: {}};
+  }
+  return sessionId;
+};
+
 // Messenger API specific code
 
 // See the Send API reference
@@ -51,22 +70,58 @@ const fbMessage = (recipientId, msg, cb) => {
   });
 };
 
+const fbMessageWithButtons = (recipientId, msg, cb) => {
+  const opts = {
+    form: {
+      recipient: {
+        id: recipientId,
+      },
+      message: {
+        'attachment': {
+        	'type': 'template',
+        	'payload': {
+        		'template_type': 'button',
+        		'text': msg,
+        		'buttons': [
+        		{
+        			'type': 'postback',
+        			'title': 'Thank you',
+        			'payload': 'yay'
+        		},
+        		{
+        			'type': 'postback',
+        			'title': 'Err no',
+        			'payload': 'nay'
+        		}
+        		]
+        	}
+      },
+    },
+  },
+};
+  fbReq(opts, (err, resp, data) => {
+    if (cb) {
+      cb(err || data.error && data.error.message, data);
+    }
+  });
+};
+
 // See the Webhook reference
 // https://developers.facebook.com/docs/messenger-platform/webhook-reference
-const getFirstMessagingEntry = (body) => {
-  const val = body.object == 'page' &&
-    body.entry &&
-    Array.isArray(body.entry) &&
-    body.entry.length > 0 &&
-    body.entry[0] &&
-    body.entry[0].id === FB_PAGE_ID &&
-    body.entry[0].messaging &&
-    Array.isArray(body.entry[0].messaging) &&
-    body.entry[0].messaging.length > 0 &&
-    body.entry[0].messaging[0]
-  ;
-  return val || null;
-};
+// const getFirstMessagingEntry = (body) => {
+//   const val = body.object == 'page' &&
+//     body.entry &&
+//     Array.isArray(body.entry) &&
+//     body.entry.length > 0 &&
+//     body.entry[0] &&
+//     body.entry[0].id === FB_PAGE_ID &&
+//     body.entry[0].messaging &&
+//     Array.isArray(body.entry[0].messaging) &&
+//     body.entry[0].messaging.length > 0 &&
+//     body.entry[0].messaging[0]
+//   ;
+//   return val || null;
+// };
 
 // Starting our webserver and putting it all together
 const app = express();
@@ -90,50 +145,102 @@ app.get('/fb', (req, res) => {
 // Message handler
 app.post('/fb', (req, res) => {
   // Parsing the Messenger API response
-  const messaging = getFirstMessagingEntry(req.body);
-  if (messaging && messaging.message && messaging.recipient.id === FB_PAGE_ID) {
-    // Yay! We got a new message!
+  
+  // const messaging = getFirstMessagingEntry(req.body);
+  // if (messaging && messaging.message && messaging.recipient.id === FB_PAGE_ID) {
+  //   // Yay! We got a new message!
 
-    // We retrieve the Facebook user ID of the sender
-    const sender = messaging.sender.id;
+  //   // We retrieve the Facebook user ID of the sender
+    
+  //   const sender = messaging.sender.id;
 
-    // We retrieve the message content
-    const msg = messaging.message.text.toUpperCase();
-    const atts = messaging.message.attachments;
+    
 
-    if (atts) {
-      // We received an attachment
+  //   // We retrieve the message content
+  //   const msg = messaging.message.text.toUpperCase();
+  //   const atts = messaging.message.attachments;
+  //   // const payload = messaging.postback;
 
-      // Let's reply with an automatic message
-      fbMessage(
-        sender,
-        'Sorry I can only process text messages for now.'
-      );
-    } else if (msg) {
-      // We received a text message
-      // console.log(msg);
-      // console.log(findModule(msg));
-      // console.log(findKey(msg));
-      // fbMessage(sender,msg);
-      execute(sender, msg);
+
+  
+
+  //   if (atts) {
+  //     // We received an attachment
+
+  //     // Let's reply with an automatic message
+
+  //     fbMessage(
+  //       sender,
+  //       'What a nice photo!'
+  //     );
+  //   } else if (msg) {
       
-    }
-  }
+  //     execute(sender, msg);
+
+  //   } else if (payload){
+  //   	console.log('fine');
+  //   }
+  //   // } else if (payload) {
+      
+  //   //   // Handle a payload from this sender
+  //   //   console.log(payload);
+  //   // }
+  // }
+
+  let messaging_events = req.body.entry[0].messaging
+	for (let i = 0; i < messaging_events.length; i++) {
+
+		let event = req.body.entry[0].messaging[i]
+		let sender = event.sender.id
+		const sessionId = findOrCreateSession(sender);
+
+
+
+		if (event.message && event.message.text) {
+			let text = event.message.text.toUpperCase()
+			// sessions[sessionId].context.parameter = execute(sender,text);
+			// fbMessage(sender,sessions[sessionId].context.parameter);
+			execute(sender,text);
+		}
+		if (event.postback) {
+			if (event.postback.payload == 'yay' ) {
+				fbMessage(sender,'It is my pleasure!');
+				delete sessions[sessionId];
+				console.log('session terminated');
+			} else {
+				fbMessage(sender,'Too bad!');
+				delete sessions[sessionId];
+				console.log('session terminated');
+			}
+		}
+	}
+
   res.sendStatus(200);
 });
 
 //function to check text
 
-var execute = (sender, msg) => {
-  console.log(msg);
+var execute = (sender, msg ) => {
+  
 	var intent = nusmod.findKey(msg);
+	var module = nusmod.findModule(msg);
+	
 	// var module = nusmod.findModule(msg);
   
-	if (intent === "unsure")
-		fbMessage(sender,"We are unclear of your intent");
-	else if (intent === "no intent")
+	switch(intent){
+		case "unsure":
+
+		fbMessage(sender,"Do you wish to find class location or examination detail?");
+		break;
+
+		case "no intent":
+
 		fbMessage(sender,"We are not ready for this sh*t");
-	else if (intent === "class") {
+		break;
+
+		case "class":
+
+		if (module !== -1) {
 		var result = {};
 		nusmod.getModule("2015-2016",module).then(function(res){
 				result = Object.assign(result,res);
@@ -143,37 +250,42 @@ var execute = (sender, msg) => {
 		// blah blah
 		var messageToSend = "This is the message to send";
 		fbMessage(sender,messageToSend);
-	} else if (intent === "exam") {
+		} else 
+			fbMessage(sender,'There is either no module indicated or we cannot find that module. Please indicate again');
+		break;
 
-		var result = {};
+		case "exam":
 
-		nusmod.getModule("2015-2016",nusmod.findModule(msg)).then(function(res){
-        console.log(nusmod.findModule(msg));
+		if (module !== -1) {
+			var result = {};
+
+			nusmod.getModule(module).then(function(res){
+				console.log(nusmod.findModule(msg));
 				// console.log(res);
 				result = Object.assign(result,res);
         // console.log(result);
-				
-				var messageToSend = "The date of examination of module " + nusmod.findModule(msg) + " is " + result.ExamDate + ", it will last for " + result.ExamDuration +
-		" and it will be held in " + result.ExamVenue + ".";
-		fbMessage(sender,messageToSend);
-    console.log("Waiting for other messages");
+
+        var messageToSend = "The date of examination of module " + nusmod.findModule(msg) + " is " + result.ExamDate + ", it will last for " + result.ExamDuration +
+        " and it will be held in " + result.ExamVenue + ".";
+        fbMessageWithButtons(sender,messageToSend);
+		// delete sessions[sessionId];
+		console.log("Waiting for other messages");
 
 		}).catch(function(err){
 			// console.log(err);
-      var messageToSend = "Sorry we cannot find your module. Is it " + err + "?";
-    fbMessage(sender,messageToSend);
-    console.log("Waiting for other messages");
+			var messageToSend = "Sorry we cannot find your module. Is it " + err + "?";
+			fbMessage(sender,messageToSend);
+			console.log("Waiting for other messages");
 
 		});
+		} else 
+			fbMessage(sender,'There is either no module indicated or we cannot find that module. Please indicate again');
 
-		// console.log("Mod is " + module);
-		// console.log("intent: " + intent);
-		// console.log("result " + result);
-		// var messageToSend = "The date of examination is " + result.ExamDate + ", it will last for " + result.ExamDuration +
-		// " and it will be held in " + result.ExamVenue + ".";
-		// fbMessage(sender,messageToSend);
+
+
 
 	}
+	// return intent || module;
 
 
 }
