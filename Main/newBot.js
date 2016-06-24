@@ -272,10 +272,10 @@ var execute = (sender, msg ) => {
 		// delete sessions[sessionId];
 		console.log("Waiting for other messages");
 
-		}).catch(function(err){
+		}).catch(function(value){
 			// console.log(err);
 
-			var messageToSend = "Sorry we cannot find your module. Is it " + err + "?";
+			var messageToSend = "Sorry we cannot find your module. Is it " + value + "?";
 			fbMessage(sender,messageToSend);
 			console.log("Waiting for other messages");
 
