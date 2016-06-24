@@ -106,7 +106,7 @@ findKey: function(string){
 // },
 
   convertPeriod: function(string){
-    if (string.search("M"))
+    if (string.search("M") !== -1)
       return string[string.indexOf("M") - 4 ] + ' hours and ' + string[string.indexOf("M") - 2 ]+ string[string.indexOf("M") - 1 ] + ' minutes';
     else
       return string[string.indexOf("H") - 1 ] + ' hours';

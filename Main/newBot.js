@@ -274,6 +274,7 @@ var execute = (sender, msg ) => {
 
 		}).catch(function(err){
 			// console.log(err);
+      
 			var messageToSend = "Sorry we cannot find your module. Is it " + err + "?";
 			fbMessage(sender,messageToSend);
 			console.log("Waiting for other messages");
