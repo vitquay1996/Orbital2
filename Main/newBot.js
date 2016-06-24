@@ -259,7 +259,7 @@ var execute = (sender, msg ) => {
 		if (module !== -1) {
 			var result = {};
 
-			nus.getModule(module).then(function(res){
+			nus.getModule(nus.findmodule(msg)).then(function(res){
 				// console.log(nus.findModule(msg));
 				// console.log(res);
 				result = Object.assign(result,res);
@@ -274,7 +274,7 @@ var execute = (sender, msg ) => {
 
 		}).catch(function(err){
 			// console.log(err);
-      
+
 			var messageToSend = "Sorry we cannot find your module. Is it " + err + "?";
 			fbMessage(sender,messageToSend);
 			console.log("Waiting for other messages");

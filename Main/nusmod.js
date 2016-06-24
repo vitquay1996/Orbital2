@@ -105,17 +105,17 @@ findKey: function(string){
 
 // },
 
-  convertPeriod: function(string){
-    if (string.search("M") !== -1)
-      return string[string.indexOf("M") - 4 ] + ' hours and ' + string[string.indexOf("M") - 2 ]+ string[string.indexOf("M") - 1 ] + ' minutes';
+  convertPeriod: function(str){
+    if (str.search("M") != -1)
+      return str[str.indexOf("M") - 4 ] + ' hours and ' + str[str.indexOf("M") - 2 ]+ str[str.indexOf("M") - 1 ] + ' minutes';
     else
-      return string[string.indexOf("H") - 1 ] + ' hours';
+      return str[str.indexOf("H") - 1 ] + ' hours';
 
   },
 
-  convertTime: function(string){
-    var date = string.subString(0,string.indexOf("T"));
-    var time = string.subString(string.indexOf("T") + 1, string.indexOf("T") + 6 );
+  convertTime: function(str){
+    var date = str.substring(0 , str.indexOf("T"));
+    var time = str.substring(str.indexOf("T") + 1, str.indexOf("T") + 6 );
     return time + ' on ' + date;
   }
 
