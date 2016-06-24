@@ -259,7 +259,7 @@ var execute = (sender, msg ) => {
 		if (module !== -1) {
 			var result = {};
 
-			nus.getModule(nus.findmodule(msg)).then(function(res){
+			nus.getModule(nus.findModule(msg)).then(function(res){
 				// console.log(nus.findModule(msg));
 				// console.log(res);
 				result = Object.assign(result,res);
