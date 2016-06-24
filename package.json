@@ -11,7 +11,7 @@
     "nlp",
     "automation"
   ],
-  "main": "index.js",
+  "main": "Main/newBot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
