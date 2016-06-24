@@ -114,8 +114,8 @@ findKey: function(string){
   },
 
   convertTime: function(string){
-    var date = string.substring(0,string.indexOf("T"));
-    var time = string.substring(string.indexOf("T") + 1, string.indexOf("T") + 6 );
+    var date = string.subString(0,string.indexOf("T"));
+    var time = string.subString(string.indexOf("T") + 1, string.indexOf("T") + 6 );
     return time + ' on ' + date;
   }
 
