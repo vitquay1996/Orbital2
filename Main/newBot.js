@@ -259,11 +259,10 @@ var execute = (sender, msg ) => {
 		
 			var result = {};
 
-			if (nus.getModule(module)){
+			nus.getModule(nus.findModule(msg)).then(function(res){
 				// console.log(nus.findModule(msg));
 				// console.log(res);
-        var modulename = nus.getModule(module);
-				result = Object.assign(result,modulename);
+				result = Object.assign(result,res);
         // console.log(result);
 
         var messageToSend = "The time of examination of module " + nus.findModule(msg) + " is at " + nus.convertTime(result.ExamDate) + ", it will last for " + nus.convertPeriod(result.ExamDuration) +
@@ -273,13 +272,14 @@ var execute = (sender, msg ) => {
 		// delete sessions[sessionId];
 		console.log("Waiting for other messages");
 
-		} else {
+		}).catch(function(err){
+			console.log(err);
 
-			var messageToSend = "Sorry we cannot find your module.";
+			var messageToSend = "Sorry we cannot find your module?";
 			fbMessage(sender,messageToSend);
 			console.log("Waiting for other messages");
 
-		};
+		});
 		
 
 
