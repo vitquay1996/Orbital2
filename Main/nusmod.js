@@ -5,7 +5,6 @@ var modules = path.resolve( __dirname, "./modules.json");
 
 module.exports = {
   getModule: function (modulecode){
-    return new Promise( function(response,reject){
      // var url = 'http://api.nusmods.com/' + ay + '/1/modules.json';
      // console.log("day");
      // http.get(url, function(res){
@@ -28,19 +27,19 @@ module.exports = {
         // console.log(modulecode)
         delete result[i].CorsBiddingStats;
         // console.log(result[i]);
-        response(result[i]);
+        return result[i];
 
       };
       i++;
     };
     if (i === result.length){
-      reject(modulecode);
-    }
-
-  });
-
+      return null;
+    };
 
   },
+
+
+  
 
  
 
